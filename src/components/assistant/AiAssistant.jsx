@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import TextArea from "rc-textarea";
 import { Loader2, Send, Stethoscope, X } from "lucide-react";
 
@@ -95,12 +97,12 @@ const buildSystemInstruction = (context) => {
   const suggestionList = context.suggestions.map((line) => `• ${line}`).join("\n");
   return [
     "You are AI Health Companion, a virtual telemedicine assistant helping patients interpret information and make informed decisions.",
-    "Respond with empathy, clarity, and within 180 words. Never provide diagnoses or direct medical orders. Encourage urgent care or emergency services for concerning symptoms.",
+    "Respond with empathy, clarity, and no more than 90 words. Lead with the direct answer, follow with only the most essential context, and avoid filler or repetition. Never provide diagnoses or direct medical orders. Encourage urgent care or emergency services for concerning symptoms.",
     `Current page focus: ${context.heading}.`,
     `Primary patient need: ${context.greeting}`,
     "Key talking points to emphasise:",
     suggestionList,
-    "Offer 1-3 actionable suggestions, explain reasoning in simple language, and end with a gentle follow-up question when appropriate.",
+    "Offer at most 2 concise actionable suggestions, explain reasoning in simple language, and end with a single follow-up question only when helpful.",
   ].join("\n\n");
 };
 
@@ -117,8 +119,8 @@ const buildGeminiPayload = (history, context) => ({
   })),
   generationConfig: {
     temperature: 0.6,
-    topP: 0.9,
-    maxOutputTokens: 512,
+    topP: 0.8,
+    maxOutputTokens: 220,
   },
 });
 
@@ -129,6 +131,31 @@ const extractGeminiText = (payload) => {
     .filter(Boolean)
     .join("\n")
     .trim();
+};
+
+const MARKDOWN_COMPONENTS = {
+  p: ({ children }) => (
+    <p className="whitespace-pre-wrap text-sm leading-relaxed">{children}</p>
+  ),
+  strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+  em: ({ children }) => <em className="italic">{children}</em>,
+  ul: ({ children }) => (
+    <ul className="ml-5 list-disc space-y-1 text-sm leading-relaxed">{children}</ul>
+  ),
+  ol: ({ children }) => (
+    <ol className="ml-5 list-decimal space-y-1 text-sm leading-relaxed">{children}</ol>
+  ),
+  li: ({ children }) => <li>{children}</li>,
+  a: ({ href, children }) => (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="font-semibold text-sky-600 underline underline-offset-2 hover:text-sky-700"
+    >
+      {children}
+    </a>
+  ),
 };
 
 const AiAssistant = ({ currentPath }) => {
@@ -189,14 +216,10 @@ const AiAssistant = ({ currentPath }) => {
     }
   }, [error, isTyping]);
 
-  if (!context) {
-    return null;
-  }
-
   const sendMessage = useCallback(
     async (rawInput) => {
       const trimmed = rawInput.trim();
-      if (!trimmed) {
+      if (!trimmed || !context) {
         return;
       }
 
@@ -270,6 +293,10 @@ const AiAssistant = ({ currentPath }) => {
     [context, messages],
   );
 
+  if (!context) {
+    return null;
+  }
+
   const handleToggle = () => {
     setIsOpen((prev) => {
       const nextState = !prev;
@@ -298,15 +325,16 @@ const AiAssistant = ({ currentPath }) => {
         className={`flex ${isAssistant ? "justify-start" : "justify-end"}`}
       >
         <div
-          className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm ${
+          className={`markdown-text max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm ${
             isAssistant ? "bg-sky-50 text-slate-700" : "bg-sky-600 text-white"
           }`}
         >
-          {message.content.split("\n").map((line, index) => (
-            <p key={`${message.id}-${index}`} className="whitespace-pre-line">
-              {line}
-            </p>
-          ))}
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={MARKDOWN_COMPONENTS}
+          >
+            {message.content}
+          </ReactMarkdown>
         </div>
       </div>
     );

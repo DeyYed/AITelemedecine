@@ -1,10 +1,23 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import DashboardLayout from "../../components/dashboard/layout/DashboardLayout.jsx";
 import { doctorsDirectory } from "../../data/patientDashboardData.js";
 import { CheckCircle, CalendarPlus } from "lucide-react";
+import ClinicSearchBar from "../../components/dashboard/common/ClinicSearchBar.jsx";
 
 const BookDoctorPage = () => {
   const [confirmation, setConfirmation] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredDoctors = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+    if (!query) {
+      return doctorsDirectory;
+    }
+    return doctorsDirectory.filter((doctor) => {
+      const haystack = `${doctor.name} ${doctor.specialization} ${doctor.availability}`.toLowerCase();
+      return haystack.includes(query);
+    });
+  }, [searchTerm]);
 
   const handleBookDoctor = (doctor) => {
     setConfirmation({
@@ -38,8 +51,15 @@ const BookDoctorPage = () => {
           </div>
         )}
 
+        <ClinicSearchBar
+          label="Search doctors"
+          placeholder="Search by name, specialty, or schedule"
+          value={searchTerm}
+          onChange={setSearchTerm}
+        />
+
         <div className="grid gap-4">
-          {doctorsDirectory.map((doctor) => (
+          {filteredDoctors.map((doctor) => (
             <div
               key={doctor.id}
               className="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm shadow-sky-100 sm:flex-row sm:items-center sm:justify-between"
@@ -59,6 +79,12 @@ const BookDoctorPage = () => {
               </button>
             </div>
           ))}
+
+          {filteredDoctors.length === 0 && (
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-500">
+              No doctors match your search right now. Try another name or specialty.
+            </div>
+          )}
         </div>
       </section>
     </DashboardLayout>

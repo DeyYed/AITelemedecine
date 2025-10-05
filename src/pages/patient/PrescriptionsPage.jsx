@@ -1,11 +1,24 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import DashboardLayout from "../../components/dashboard/layout/DashboardLayout.jsx";
 import { patientPrescriptions } from "../../data/patientDashboardData.js";
 import { ClipboardList } from "lucide-react";
 import PrescriptionDetailModal from "../../components/dashboard/prescriptions/PrescriptionDetailModal.jsx";
+import ClinicSearchBar from "../../components/dashboard/common/ClinicSearchBar.jsx";
 
 const PrescriptionsPage = () => {
   const [selectedPrescription, setSelectedPrescription] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredPrescriptions = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+    if (!query) {
+      return patientPrescriptions;
+    }
+    return patientPrescriptions.filter((prescription) => {
+      const haystack = `${prescription.medicine} ${prescription.doctor} ${prescription.dosage} ${prescription.instructions} ${prescription.id}`.toLowerCase();
+      return haystack.includes(query);
+    });
+  }, [searchTerm]);
 
   const openDetail = (prescription) => {
     setSelectedPrescription(prescription);
@@ -24,8 +37,15 @@ const PrescriptionsPage = () => {
             Track your active and historical prescriptions from your physicians.
           </p>
         </div>
+        <ClinicSearchBar
+          label="Search prescriptions"
+          placeholder="Search by medicine, doctor, dosage, or ID"
+          value={searchTerm}
+          onChange={setSearchTerm}
+        />
+
         <div className="grid gap-4">
-          {patientPrescriptions.map((prescription) => (
+          {filteredPrescriptions.map((prescription) => (
             <button
               key={prescription.id}
               type="button"
@@ -50,6 +70,12 @@ const PrescriptionsPage = () => {
               <p className="mt-4 text-xs text-slate-500">{prescription.instructions}</p>
             </button>
           ))}
+
+          {filteredPrescriptions.length === 0 && (
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-500">
+              No prescriptions match your search. Try another medicine name or doctor.
+            </div>
+          )}
         </div>
       </section>
       <PrescriptionDetailModal
