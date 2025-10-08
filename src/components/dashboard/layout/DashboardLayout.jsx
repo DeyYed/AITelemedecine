@@ -1,28 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import DashboardSidebar from "./DashboardSidebar.jsx";
 import DashboardTopbar from "./DashboardTopbar.jsx";
-import EditProfileModal from "../profile/EditProfileModal.jsx";
 
 const DashboardLayout = ({ activePath, patientName = "Juan", children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [displayName, setDisplayName] = useState(patientName);
-
-  useEffect(() => {
-    setDisplayName(patientName);
-  }, [patientName]);
 
   const toggleSidebar = () => {
     setSidebarOpen((prev) => !prev);
   };
 
   const closeSidebar = () => setSidebarOpen(false);
-  const openEditModal = () => setEditModalOpen(true);
-  const closeEditModal = () => setEditModalOpen(false);
 
   return (
-    <>
-      <div className="flex h-screen overflow-hidden bg-slate-50">
+    <div className="flex h-screen overflow-hidden bg-slate-50">
         <DashboardSidebar activePath={activePath} className="hidden h-full flex-col lg:flex" />
 
         {/* Mobile sidebar */}
@@ -42,26 +32,14 @@ const DashboardLayout = ({ activePath, patientName = "Juan", children }) => {
 
         <div className="flex h-full flex-1 flex-col overflow-hidden">
           <DashboardTopbar
-            patientName={displayName}
+            patientName={patientName}
             onToggleSidebar={toggleSidebar}
-            onOpenEditProfile={openEditModal}
           />
           <main className="flex-1 overflow-y-auto px-4 py-8 sm:px-8 lg:px-12">
             <div className="mx-auto max-w-6xl space-y-6 pb-12">{children}</div>
           </main>
         </div>
       </div>
-      <EditProfileModal
-        isOpen={editModalOpen}
-        onClose={closeEditModal}
-        onSave={(data) => {
-          if (data?.name) {
-            setDisplayName(data.name);
-          }
-        }}
-        initialName={displayName}
-      />
-    </>
   );
 };
 

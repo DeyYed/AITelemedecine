@@ -4,6 +4,7 @@ import DashboardLayout from "../../components/dashboard/layout/DashboardLayout.j
 const EditProfilePage = () => {
   const [formData, setFormData] = useState({
     name: "Juan Dela Cruz",
+    currentPassword: "",
     password: "",
     confirmPassword: "",
   });
@@ -14,14 +15,32 @@ const EditProfilePage = () => {
     const { name, value } = event.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setStatus("");
+    setError("");
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (formData.password && formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match. Please try again.");
-      setStatus("");
-      return;
+    const newPw = formData.password?.trim();
+    const confirmPw = formData.confirmPassword?.trim();
+    const currentPw = formData.currentPassword?.trim();
+
+    // If user attempts to change password, enforce rules
+    if (newPw || confirmPw) {
+      if (!currentPw) {
+        setError("Please enter your current password to set a new one.");
+        setStatus("");
+        return;
+      }
+      if (newPw.length < 8) {
+        setError("New password must be at least 8 characters long.");
+        setStatus("");
+        return;
+      }
+      if (newPw !== confirmPw) {
+        setError("New password and confirmation do not match.");
+        setStatus("");
+        return;
+      }
     }
 
     setError("");
@@ -62,8 +81,26 @@ const EditProfilePage = () => {
                 placeholder="Juan Dela Cruz"
               />
             </label>
+
+            <div className="sm:col-span-2">
+              <h3 className="text-sm font-semibold text-slate-900">Change your password?</h3>
+              <p className="mt-1 text-xs text-slate-500">Leave blank to keep your current password.</p>
+            </div>
+
             <label>
-              <span className="text-sm font-medium text-slate-600">New Password</span>
+              <span className="text-sm font-medium text-slate-600">Current password</span>
+              <input
+                type="password"
+                name="currentPassword"
+                value={formData.currentPassword}
+                onChange={handleChange}
+                className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm transition focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
+                placeholder="Enter current password"
+                autoComplete="current-password"
+              />
+            </label>
+            <label>
+              <span className="text-sm font-medium text-slate-600">New password</span>
               <input
                 type="password"
                 name="password"
@@ -75,7 +112,7 @@ const EditProfilePage = () => {
               />
             </label>
             <label>
-              <span className="text-sm font-medium text-slate-600">Confirm Password</span>
+              <span className="text-sm font-medium text-slate-600">Confirm new password</span>
               <input
                 type="password"
                 name="confirmPassword"

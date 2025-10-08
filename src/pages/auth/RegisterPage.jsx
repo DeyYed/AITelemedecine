@@ -16,6 +16,9 @@ const RegisterPage = () => {
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (error) {
+      setError("");
+    }
   };
 
   useEffect(() => {
@@ -26,8 +29,14 @@ const RegisterPage = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match. Please confirm and try again.");
+    const pw = formData.password?.trim();
+    const cpw = formData.confirmPassword?.trim();
+    if (!pw || pw.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      return;
+    }
+    if (pw !== cpw) {
+      setError("Password and confirmation do not match.");
       return;
     }
 
