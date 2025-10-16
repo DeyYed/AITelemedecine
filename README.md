@@ -1,53 +1,57 @@
-# AI Telemedicine Frontend
+AI Telemedicine Frontend
 
-A patient-focused telemedicine experience built with React 19 + Vite 7. The app ships with a marketing landing page, authentication flows, a responsive patient dashboard, prescription management, and an AI health companion powered by Google Gemini.
+A patient-focused telemedicine platform built with React 19 + Vite 7. Includes a landing page, authentication flows, a responsive patient dashboard, prescription management, and an AI health assistant powered by Google Gemini.
 
-## ✨ Features
+Features
 
-- Modern medical landing page with clear value propositions
-- Email/password authentication mock flows for login, register, and password reset
-- Patient dashboard with appointments, prescriptions, doctor booking, and profile management
-- Floating AI assistant available across all patient pages with context-aware guidance
-- Responsive layout, mobile-ready navigation, and modal-based interactions
+Modern landing page with clear value propositions
 
-## 🚀 Getting Started
+Authentication mock flows (login, register, password reset)
 
-```bash
+Patient dashboard with appointments, prescriptions, doctor booking, and profile management
+
+Floating AI assistant with context-aware guidance
+
+Responsive layout with mobile support and modal interactions
+
+
+Getting Started
+
 npm install
 npm run dev
-```
 
-The development server runs at [http://localhost:5173](http://localhost:5173).
+Development server: http://localhost:5173
 
-## 🔐 Environment Variables
+Environment Variables
 
-The AI assistant uses the Gemini 2.5 Flash-Lite model. Create an `.env` file (copy `.env.example`) and provide your API key:
+The AI assistant uses the Gemini 2.5 Flash-Lite model. Create an .env file and add:
 
-```
 VITE_GEMINI_API_KEY=your-google-gemini-api-key
-```
 
-> **Note:** Calling Gemini directly from the browser exposes the API key. For production, proxy requests through a secure backend service.
+For production, proxy requests through a secure backend to protect the API key.
 
-## 🧠 AI Prompting Behaviour
+AI Prompting
 
-The assistant tailors its system prompt and suggestions based on the active patient page:
+The assistant adapts responses by page:
 
-- **Dashboard:** Symptom check-ins and wellbeing guidance
-- **Book a Doctor:** Specialist recommendations based on symptoms and availability
-- **Appointments:** Scheduling help and reminder preparation
-- **Prescriptions:** Medication explanations and adherence tips
+Dashboard: Symptom check-ins and wellbeing guidance
 
-Each response is capped at ~180 words, includes empathetic guidance, and gently nudges patients toward professional care when needed.
+Book a Doctor: Specialist recommendations
 
-## 🏗️ Build
+Appointments: Scheduling help and reminders
 
-```bash
+Prescriptions: Medication explanations and tips
+
+
+Responses are capped at ~180 words and encourage professional consultation when needed.
+
+Build
+
 npm run build
-```
 
-The production bundle outputs to `dist/`.
+Outputs to dist/.
 
-## 📄 License
+License
 
-This project is provided as-is for demonstration purposes. Update the license to suit your deployment needs.
+For demonstration purposes only. Update the license before deployment.
+
